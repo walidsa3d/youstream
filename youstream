@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+#walid.saad
+import subprocess
+import argparse
+
+
+def play_torrent(url,player):
+    peerflix_args="--not-on-top "
+    peerflix_command="peerflix '{}' --{} {}".format(url,player,peerflix_args)
+    command="xterm -e \"{}\"".format(peerflix_command)
+    print command
+    subprocess.Popen(command, shell=True) 
+
+def play_video(url, player):
+    p=""
+    youtubedl_args=""
+    mplayer_command="youtube-dl --all-subs -q -o- '{}' | mplayer -cache 10000 -".format(url)
+    mpv_command="mpv --ytdl -cache 5000 '{}'".format(url)
+    vlc_command="youtube-dl --all-subs -q -o- '{}' | vlc --file-caching='10000' --network-caching='10000'  -".format(url)
+    if player=="mplayer":
+        p=mplayer_command
+    elif player=="mpv":
+        p=mpv_command
+    else:
+        p=vlc_command
+    command="xterm -hold -e \"{}\"".format(p)
+    print command
+    subprocess.Popen(command, shell=True) 
+
+def main():
+    player="vlc"
+    parser = argparse.ArgumentParser(usage="-h for full usage")
+    parser.add_argument('video', help='source directory')
+    parser.add_argument('--vlc', help='source directory',action="store_true")
+    parser.add_argument('--mpv', help='source directory',action="store_true")
+    parser.add_argument('--mplayer', help='source directory',action="store_true")
+    args = parser.parse_args()
+    if args.mpv:
+        player="mpv"
+    elif args.mplayer:
+        player="mplayer"
+    if args.video.startswith("magnet"):
+        play_torrent(args.video,player)
+    else:
+        play_video(args.video,player)
+    
+
+main()
